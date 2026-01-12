@@ -1,0 +1,5 @@
+names:
+  0: face
+path: C:\Users\USER\PycharmProjects\PythonProject\archive
+train: WIDER_train\WIDER_train\images
+val: WIDER_val\WIDER_val\images
