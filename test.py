@@ -20,9 +20,16 @@ WIDER_VAL_LABELS = os.path.join(BASE_DIR, 'Face Dataset', 'WIDER_val', 'WIDER_va
 
 # HaGRID PATHS
 HAGRID_ROOT = os.path.join(BASE_DIR, 'Hand Gesture')
-HAGRID_IMG_DIR = HAGRID_ROOT # Images extracted here
-HAGRID_ANN_DIR = os.path.join(HAGRID_ROOT, 'ann_train_val')
-HAGRID_LABELS = os.path.join(HAGRID_ROOT, 'labels')
+# Subsample extract path often includes yolo_format/images
+HAGRID_IMG_ROOT = os.path.join(HAGRID_ROOT, 'yolo_format', 'images')
+HAGRID_LABEL_ROOT = os.path.join(HAGRID_ROOT, 'yolo_format', 'labels')
+
+# Prioritize train_val (complete) annotations
+if os.path.exists(os.path.join(HAGRID_ROOT, 'ann_train_val')):
+    HAGRID_ANN_DIR = os.path.join(HAGRID_ROOT, 'ann_train_val')
+else:
+    # Fallback to subsample
+    HAGRID_ANN_DIR = os.path.join(HAGRID_ROOT, 'ann_subsample')
 
 # OUTPUTS
 YAML_FILE = os.path.join(BASE_DIR, 'custom_config.yaml')
@@ -34,7 +41,8 @@ CLASS_MAP = {
     "call": 1, "dislike": 2, "fist": 3, "four": 4, "like": 5,
     "mute": 6, "ok": 7, "one": 8, "palm": 9, "peace": 10,
     "peace_inverted": 11, "rock": 12, "stop": 13, "three": 14,
-    "three2": 15, "two_up": 16, "two_up_inverted": 17, "no_gesture": 18
+    "three2": 15, "two_up": 16, "two_up_inverted": 17, "no_gesture": 18,
+    "stop_inverted": 19
 }
 
 def check_gpu_status():
@@ -66,9 +74,7 @@ def process_wider(subset):
     out_dir = WIDER_TRAIN_LABELS if subset == 'train' else WIDER_VAL_LABELS
     
     # Locate Annotation File
-    # Original paths from user structure
     ann_file_name = 'wider_face_train_bbx_gt.txt' if subset == 'train' else 'wider_face_val_bbx_gt.txt'
-    # Check common locations
     candidates = [
         os.path.join(BASE_DIR, 'Face Dataset', 'wider_face_annotations', 'wider_face_split', ann_file_name),
         os.path.join(ARCHIVE_DIR, 'wider_face_annotations', 'wider_face_split', ann_file_name)
@@ -82,7 +88,6 @@ def process_wider(subset):
     print(f"Processing WIDER {subset}...")
     os.makedirs(out_dir, exist_ok=True)
     
-    # Check if already done (simple check)
     if len(glob.glob(os.path.join(out_dir, "**", "*.txt"), recursive=True)) > 100:
         print(f"✅ WIDER {subset} labels seem to exist. Skipping conversion.")
         return
@@ -113,7 +118,6 @@ def process_wider(subset):
             pbar.update(num_boxes)
             continue
             
-        # Get dimensions
         img = cv2.imread(img_path)
         if img is None:
             i += num_boxes
@@ -143,42 +147,57 @@ def process_wider(subset):
     print(f"Converted {count} WIDER {subset} images.")
 
 def process_hagrid():
-    print("\nProcessing HaGRID Dataset...")
+    print(f"\nProcessing HaGRID Dataset using annotations from: {HAGRID_ANN_DIR}")
     if not os.path.exists(HAGRID_ANN_DIR):
         print("⚠️ HaGRID annotations not found. Skipping.")
         return
 
-    os.makedirs(HAGRID_LABELS, exist_ok=True)
+    # Don't skip early if yolo_format/labels exists, because we might need to REWRITE them with correct class map
+    # user class map: face=0, call=1...
+    # original hagrid might be call=0...
     
-    # Check if labels exist
-    if len(os.listdir(HAGRID_LABELS)) > 100:
-        print("✅ HaGRID labels seem to exist. Skipping conversion.")
-        return
-
     json_files = [f for f in os.listdir(HAGRID_ANN_DIR) if f.endswith('.json')]
+    splits = ['train', 'val', 'test']
     
+    # Pre-check where images are to avoid redundant checks
+    # Assuming standard yolo_format structure
+    
+    total_converted = 0
     for json_file in json_files:
         with open(os.path.join(HAGRID_ANN_DIR, json_file), 'r') as f:
             data = json.load(f)
             
+        print(f"Processing {json_file}...")
         for img_id, content in tqdm(data.items(), desc=json_file):
             bboxes = content.get('bboxes', [])
             labels = content.get('labels', [])
             
-            # Check if image exists (optional optimization: skip check if confident)
-            # HaGRID structure after unzip: Hand Gesture/call/image_id.jpg OR Hand Gesture/image_id.jpg
-            # Let's assume flattened or we need to find it. 
-            # The download script usually creates folders per class? 
-            # Subsample usually has structure. We will assume flat for now or update finding logic.
-            # Actually, HaGRID subsamples usually put images in class folders.
+            # Locate Image in splits
+            found_split = None
+            found_img_path = None
             
+            for s in splits:
+                p = os.path.join(HAGRID_IMG_ROOT, s, f"{img_id}.jpg")
+                if os.path.exists(p):
+                    found_split = s
+                    found_img_path = p
+                    break
+            
+            # If not found in splits, check root/class folders (fallback)
+            if not found_split:
+                 # Check flat in IMG root (less likely for yolo_format)
+                 pass # Add if needed
+            
+            if not found_split:
+                continue
+
+            # Target Label Path
+            target_label_dir = os.path.join(HAGRID_LABEL_ROOT, found_split)
+            os.makedirs(target_label_dir, exist_ok=True)
+            target_label_file = os.path.join(target_label_dir, f"{img_id}.txt")
+            
+            # Generate Label Content
             yolo_data = []
-            valid_image = False
-            
-            # Try to locate image to confirm existence
-            # Strategy: We generate label. Training will fail if image is missing, 
-            # but we assume unzip is/will be successful.
-            
             for j in range(len(bboxes)):
                 label = labels[j]
                 if label in CLASS_MAP:
@@ -189,38 +208,36 @@ def process_hagrid():
             
             if yolo_data:
                 msg = '\n'.join(yolo_data)
-                # Save label as {img_id}.txt
-                with open(os.path.join(HAGRID_LABELS, f"{img_id}.txt"), 'w') as f:
+                with open(target_label_file, 'w') as f:
                     f.write(msg)
+                total_converted += 1
+    
+    print(f"Total HaGRID images processed and labeled: {total_converted}")
 
 def create_config():
     print("\nGenerating YAML config...")
     
-    # We list the roots. YOLO allows list of directories.
-    # WIDER structure: .../images/0--Parade/...
-    # HaGRID structure: .../Hand Gesture (containing class folders or jpgs)
-    # Important: YOLO Auto-discovery expects 'images' and 'labels' folders or explicit files.
-    # Our WIDER setup: 
-    #   images: Face Dataset/WIDER_train/WIDER_train/images
-    #   labels: Face Dataset/WIDER_train/WIDER_train/labels
-    # This works automatically because 'labels' is sibling of 'images' (mostly) or we need explicit paths.
+    # Define training and validation sets
+    # WIDER is explicitly split.
+    # HaGRID (yolo_format) is split.
     
-    # For HaGRID, we put labels in 'Hand Gesture/labels'.
-    # Images in 'Hand Gesture'. 
-    # If HaGRID images are in subfolders (e.g. Hand Gesture/call/xyz.jpg), 
-    # and labels in Hand Gesture/labels/xyz.txt, strict YOLO might not match unless we flatten.
-    # BUT, let's include the specific paths.
+    train_paths = [
+        WIDER_TRAIN_IMG,
+        os.path.join(HAGRID_IMG_ROOT, 'train')
+    ]
+    
+    val_paths = [
+        WIDER_VAL_IMG,
+        os.path.join(HAGRID_IMG_ROOT, 'val') # Use val set if exists
+    ]
+    
+    # If val folder is empty/non-existent, fallback to test or train?
+    # YOLO handles missing folders by warning usually.
     
     config = {
         'path': BASE_DIR,
-        'train': [
-            WIDER_TRAIN_IMG,
-            HAGRID_IMG_DIR
-        ],
-        'val': [
-            WIDER_VAL_IMG,
-            HAGRID_IMG_DIR # Using same for val for now or subset if we had one
-        ],
+        'train': train_paths,
+        'val': val_paths,
         'names': {v: k for k, v in CLASS_MAP.items()}
     }
     
@@ -253,7 +270,7 @@ def main():
         data=YAML_FILE,
         epochs=10, 
         imgsz=640,
-        device=0,
+        device=0 if torch.cuda.is_available() else 'cpu',
         batch=8,  # Increased to 32 to utilize ~8GB VRAM
         project='runs',
         name='face_gesture_train',

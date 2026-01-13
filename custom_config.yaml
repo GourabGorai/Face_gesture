@@ -1,10 +1,10 @@
 path: D:\BragBoard-main\Face Detection
 train:
 - D:\BragBoard-main\Face Detection\Face Dataset\WIDER_train\WIDER_train\images
-- D:\BragBoard-main\Face Detection\Hand Gesture
+- D:\BragBoard-main\Face Detection\Hand Gesture\yolo_format\images\train
 val:
 - D:\BragBoard-main\Face Detection\Face Dataset\WIDER_val\WIDER_val\images
-- D:\BragBoard-main\Face Detection\Hand Gesture
+- D:\BragBoard-main\Face Detection\Hand Gesture\yolo_format\images\val
 names:
   0: face
   1: call
@@ -25,3 +25,4 @@ names:
   16: two_up
   17: two_up_inverted
   18: no_gesture
+  19: stop_inverted
