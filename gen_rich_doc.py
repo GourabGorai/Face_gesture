@@ -47,6 +47,17 @@ def generate_doc():
                     if hasattr(act_entry, 'act_name') and isinstance(act_entry.act_name, str) and act_entry.act_name:
                         activity = act_entry.act_name
                         
+                        # Filter for Subway Surfers activities
+                        target_activities = ['rope skipping', 'ballroom', 'boxing', 'fencing']
+                        is_target = False
+                        for t in target_activities:
+                            if t in activity:
+                                is_target = True
+                                break
+                        
+                        if not is_target:
+                            continue
+
                         # If we haven't found a sample for this activity yet
                         if activity not in found_activities:
                             img_name = annolist[i].image.name
@@ -85,8 +96,8 @@ def generate_doc():
         sorted_acts = sorted(found_activities.keys())
         
         with open(doc_path, 'w', encoding='utf-8') as f:
-            f.write("# Detectable Activities Documentation\n\n")
-            f.write(f"This model supports **{len(sorted_acts)}** activities. Below are sample images for each.\n\n")
+            f.write("# Subway Surfers Activities Documentation\n\n")
+            f.write(f"This model is specialized for the following **{len(sorted_acts)}** activities used in game control:\n\n")
             f.write("| Activity Name | Sample Image |\n")
             f.write("| :--- | :--- |\n")
             
