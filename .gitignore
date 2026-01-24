@@ -147,3 +147,18 @@ runs/
 # IDE settings
 .idea/
 .vscode/
+
+# MPII Dataset
+mpii_human_pose_v1.tar.gz
+mpii_human_pose_v1_u12_2.zip
+mpii_human_pose_v1_u12_2/
+mpii_human_pose_v1_u12_2.mat
+images/
+mpii_human_pose_v1/
+
+# Models
+# *.pth
+# activity_map.pkl
+
+# Documentation Generation Artifacts
+activity_list_temp.txt
