@@ -95,15 +95,31 @@ def generate_doc():
         print("Generating Markdown...")
         sorted_acts = sorted(found_activities.keys())
         
+        # Mapping for documentation
+        action_map = {
+            'rope skipping': 'JUMP (Up)',
+            'ballroom': 'ROLL/DUCK (Down)',
+            'boxing': 'MOVE LEFT',
+            'fencing': 'MOVE RIGHT'
+        }
+
         with open(doc_path, 'w', encoding='utf-8') as f:
             f.write("# Subway Surfers Activities Documentation\n\n")
             f.write(f"This model is specialized for the following **{len(sorted_acts)}** activities used in game control:\n\n")
-            f.write("| Activity Name | Sample Image |\n")
-            f.write("| :--- | :--- |\n")
+            f.write("| Activity Name | Game Action | Sample Image |\n")
+            f.write("| :--- | :--- | :--- |\n")
             
             for act in sorted_acts:
                 img_rel_path = found_activities[act]
-                f.write(f"| **{act}** | <img src='{img_rel_path}' width='200'> |\n")
+                
+                # Determine action
+                action = "Unknown"
+                for key, val in action_map.items():
+                    if key in act:
+                        action = val
+                        break
+                        
+                f.write(f"| **{act}** | **{action}** | <img src='{img_rel_path}' width='200'> |\n")
                 
         print(f"Documentation saved to {doc_path}")
         
