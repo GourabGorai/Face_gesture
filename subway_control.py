@@ -75,6 +75,8 @@ def main():
     
     last_action_time = 0
     COOLDOWN = 0.5
+    gesture_active = False
+
     
     # Key Mapping
     KEY_MAP = {
@@ -124,14 +126,19 @@ def main():
                     color = (0, 255, 0)
                     action_text = f"{action_name} ({confidence:.2f})"
                     
+                    # Reset latch if IDLE
+                    if action_name == 'IDLE':
+                        gesture_active = False
+
                     # Trigger Key
                     key = KEY_MAP.get(action_name)
                     current_time = time.time()
                     
-                    if key and (current_time - last_action_time > COOLDOWN):
+                    if key and not gesture_active and (current_time - last_action_time > COOLDOWN):
                         print(f"Action: {action_name} -> Key: {key}")
                         pyautogui.press(key)
                         last_action_time = current_time
+                        gesture_active = True
                         
                         cv2.putText(frame, f"PRESS: {key.upper()}", (50, 200), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 3)
                 else:

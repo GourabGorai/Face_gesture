@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face & Gesture Intelligence System</title>
+    <style>
+        :root {
+            --primary-color: #00ff88;
+            --secondary-color: #00d4ff;
+            --bg-color: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-color: #e0e0e0;
+            --accent-glow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 2px solid var(--primary-color);
+            position: relative;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), var(--secondary-color), transparent);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--primary-color);
+        }
+
+        h2::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 32px;
+            background: var(--secondary-color);
+            margin-right: 12px;
+            border-radius: 4px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid #333;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--accent-glow);
+            border-color: var(--primary-color);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .card p {
+            color: #aaa;
+            font-size: 0.95rem;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #444;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .badge:hover {
+            background: var(--secondary-color);
+            color: black;
+            border-color: var(--secondary-color);
+        }
+
+        .tech-category {
+            margin-bottom: 1.5rem;
+        }
+        
+        .tech-category h4 {
+            color: #fff;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .file-tree {
+            font-family: 'Consolas', monospace;
+            background: #111;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+            color: #ccc;
+        }
+        
+        .file-tree div {
+            margin: 4px 0;
+        }
+        
+        .comment {
+            color: #666;
+            font-style: italic;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: #000;
+            color: #666;
+            border-top: 1px solid #222;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Face & Gesture Intelligence</h1>
+        <p class="subtitle">An advanced computer vision system integrating real-time face detection, hand gesture recognition, and pose-based interface control.</p>
+    </header>
+
+    <div class="container">
+        
+        <section id="overview">
+            <h2>Project Overview</h2>
+            <div class="card" style="width: 100%;">
+                <p>This project is a sophisticated Computer Vision application designed to interpret human actions in real-time. By leveraging state-of-the-art Deep Learning models (YOLOv8) and Pose Estimation techniques (MediaPipe), the system can detect faces with high precision, recognize complex hand gestures, and translate full-body movements into digital control signals for gaming and software interaction.</p>
+                <br>
+                <p>Built by <strong>Outstanding Koders</strong>, the system handles multi-stream inference, allowing for simultaneous face and gesture tracking without performance degradation on supported hardware.</p>
+            </div>
+        </section>
+
+        <section id="features">
+            <h2>Key Features</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>🎭 Real-time Face Detection</h3>
+                    <p>Custom-trained YOLOv8 model optimized for the WIDER FACE dataset. Detects multiple faces simultaneously in varied lighting and angles with high confidence scores.</p>
+                </div>
+                <div class="card">
+                    <h3>✌️ Hand Gesture Recognition</h3>
+                    <p>Identifies a wide range of hand signs including Like, Dislike, Peace, Fist, Stop, and Call. Used for intuitive touchless interfaces.</p>
+                </div>
+                <div class="card">
+                    <h3>🎮 Pose-Based Game Control</h3>
+                    <p>Controls applications and games (like Subway Surfers) using body movements. Maps jump, duck, and lateral movements to keyboard inputs via MediaPipe and PyAutoGUI.</p>
+                </div>
+                <div class="card">
+                    <h3>⚡ Dual-Model Inference</h3>
+                    <p>Runs YOLO object detection and Pose Classification models in parallel. Ensures that face tracking doesn't stop when gestures are being processed.</p>
+                </div>
+                <div class="card">
+                    <h3>🚀 GPU Acceleration</h3>
+                    <p>Fully optimized for NVIDIA CUDA architectures (tested on RTX 4060). Delivers high FPS performance for seamless real-time usage.</p>
+                </div>
+                <div class="card">
+                    <h3>🛠️ Automated Pipelines</h3>
+                    <p>Includes utility scripts for dataset preparation, annotation conversion (WIDER FACE to YOLO), and automated model retraining.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech-stack">
+            <h2>Technology Stack</h2>
+            <div class="card">
+                <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div class="tech-category">
+                        <h4>Core Language</h4>
+                        <div class="tech-stack">
+                            <span class="badge">Python 3.10+</span>
+                        </div>
+                    </div>
+                    
+                    <div class="tech-category">
+                        <h4>Computer Vision</h4>
+                        <div class="tech-stack">
+                            <span class="badge">OpenCV (cv2)</span>
+                            <span class="badge">Ultralytics YOLOv8</span>
+                            <span class="badge">MediaPipe</span>
+                        </div>
+                    </div>
+
+                    <div class="tech-category">
+                        <h4>Deep Learning</h4>
+                        <div class="tech-stack">
+                            <span class="badge">PyTorch</span>
+                            <span class="badge">CUDA (NVIDIA)</span>
+                            <span class="badge">NumPy</span>
+                        </div>
+                    </div>
+
+                    <div class="tech-category">
+                        <h4>Automation & Tools</h4>
+                        <div class="tech-stack">
+                            <span class="badge">PyAutoGUI</span>
+                            <span class="badge">Anaconda</span>
+                            <span class="badge">PyYAML</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="structure">
+            <h2>Project Structure</h2>
+            <div class="card">
+                <div class="file-tree">
+                    <div>📂 Face Detection/</div>
+                    <div>├── 🐍 <strong>running.py</strong> <span class="comment"># Main live inference script (Face + Gestures)</span></div>
+                    <div>├── 🐍 <strong>test.py</strong> <span class="comment"># Model training pipeline & dataset prep</span></div>
+                    <div>├── 🐍 <strong>subway_control.py</strong> <span class="comment"># Pose-based game controller logic</span></div>
+                    <div>├── 🐍 <strong>game_control.py</strong> <span class="comment"># General game interface utilities</span></div>
+                    <div>├── 🐍 <strong>rebuild_labels.py</strong> <span class="comment"># Dataset label fixing utility</span></div>
+                    <div>├── 🧠 <strong>final_face_model.pt</strong> <span class="comment"># Trained YOLO face detection weights</span></div>
+                    <div>├── 🧠 <strong>subway_pose_model.pth</strong> <span class="comment"># Trained pose classification weights</span></div>
+                    <div>└── 📁 <strong>runs/</strong> <span class="comment"># Training logs and metrics</span></div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Outstanding Koders. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>
