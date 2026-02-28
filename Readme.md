@@ -1,157 +1,86 @@
-# Face Detection System - Outstanding Koders
+﻿# Face, Gesture, and Activity Game Control AI
 
-## Overview
-This project is a complete Face Detection System built using Python, OpenCV, and Ultralytics YOLOv8. It trains a custom AI model on the WIDER FACE dataset to detect human faces and deploys this model for real-time inference using a system webcam.
+This project implements various Computer Vision and Deep Learning techniques to interpret human body poses, face detection, hand gestures, and activities to create interactive, hands-free video game controllers. 
 
-**Key Features:**
-* **Face Detection:** Detects human faces with high accuracy using a custom trained YOLOv8 model.
-* **Hand Gesture Recognition:** Recognizes various hand gestures (e.g., Call, Dislike, Fist, Like, Ok, Peace, Stop, etc.) in real-time.
-* **Dual-Model Inference:** Runs two YOLO models in parallel to detect faces and hands simultaneously without conflict.
-* **Automated Data Pipeline:** Converts WIDER FACE annotations (pixel coordinates) to YOLOv8 format (normalized).
-* **GPU Accelerated Training:** Uses NVIDIA CUDA to train the model efficiently on an RTX 4060.
-* **Live Inference:** A real-time camera application that detects and highlights multiple faces and hand gestures instantly.
+By utilizing a standard webcam, users can control games like Subway Surfers and racing simulation games through body movements and hand gestures, as well as perform real-time activity recognition.
 
-## Examples
+## 🚀 Features & Functionalities
 
-| Face Detection | Call | Dislike | Fist |
-| :---: | :---: | :---: | :---: |
-| <img src="examples/face.jpg" width="150"> | <img src="examples/call.jpg" width="150"> | <img src="examples/dislike.jpg" width="150"> | <img src="examples/fist.jpg" width="150"> |
+### 1. Body Pose Control (Subway Surfers Controller)
+* **Custom Pose Data Collection (`capture_data.py`)**: A utility script to capture your own body pose landmarks via your webcam for states like `JUMP`, `DOWN`, `LEFT`, `RIGHT`, and `IDLE`.
+* **Dataset Augmentation (`extract_pose_features.py`)**: Extracts and horizontally flips body pose landmarks from the MPII Human Pose Dataset to build a robust training set.
+* **Model Training (`train_subway_model.py` / `pose_scripts/train_pose_model.py`)**: Trains a Custom Multi-Layer Perceptron (MLP) Classifier using PyTorch on the collected 132 landmark coordinates.
+* **Real-time Game Control (`subway_control.py`)**: Analyzes continuous video feed to infer the user's stance using MediaPipe and the MLP model. High-confidence poses are mapped to keyboard presses (`UP`, `DOWN`, `LEFT`, `RIGHT`) using PyAutoGUI to navigate in-game.
 
-| Four | Like | Mute | Ok |
-| :---: | :---: | :---: | :---: |
-| <img src="examples/four.jpg" width="150"> | <img src="examples/like.jpg" width="150"> | <img src="examples/mute.jpg" width="150"> | <img src="examples/ok.jpg" width="150"> |
+### 2. Hand Gesture & Face Detection (Racing Games Controller)
+* **Dual-Model Inference (`running.py`)**: Uses fine-tuned YOLO object detection models to concurrently detect user faces (`final_face_model.pt`) and recognize 18+ specific hand gestures (`final_face_gesture_model.pt`).
+* **Gesture Game Controller (`game_control.py`)**: Leverages real-time object detection models to map specific hand gestures to keyboard inputs for driving video games. 
+  * ✊ **Fist**: Gas / Accelerate (Right Arrow)
+  * ✋ **Palm / Stop**: Brake / Reverse (Left Arrow)
+* **Dataset Prep & Training (`test.py`)**: Automatically converts WIDER FACE and HaGRID annotations into YOLO format and trains the combined face and gesture detector.
 
-| One | Palm | Peace | Peace Inverted |
-| :---: | :---: | :---: | :---: |
-| <img src="examples/one.jpg" width="150"> | <img src="examples/palm.jpg" width="150"> | <img src="examples/peace.jpg" width="150"> | <img src="examples/peace_inverted.jpg" width="150"> |
+### 3. General Activity Recognition
+* **Model Training (`train_activity.py`, `mpii_utils.py`)**: Fine-tunes a ResNet50 neural network on human activity datasets (MPII) to categorize multi-frame actions (supports up to 397 classes).
+* **Live Activity Monitoring (`webcam_activity.py`)**: Evaluates the live webcam stream, passing processed frames through the ResNet50 model to classify the user's ongoing physical activity and displays the live prediction confidence.
 
-| Rock | Stop | Three | Three2 |
-| :---: | :---: | :---: | :---: |
-| <img src="examples/rock.jpg" width="150"> | <img src="examples/stop.jpg" width="150"> | <img src="examples/three.jpg" width="150"> | <img src="examples/three2.jpg" width="150"> |
+## 🛠️ Tech Stack & Technologies Used
 
-| Two Up | Two Up Inverted | No Gesture | |
-| :---: | :---: | :---: | :---: |
-| <img src="examples/two_up.jpg" width="150"> | <img src="examples/two_up_inverted.jpg" width="150"> | <img src="examples/no_gesture.jpg" width="150"> | |
+This project is built directly utilizing modern Python data science and machine learning libraries:
 
----
+* **Programming Language**: [Python](https://www.python.org/)
+* **Deep Learning Frameworks**: 
+  * [PyTorch](https://pytorch.org/) & [Torchvision](https://pytorch.org/vision/stable/index.html): Used for designing, training, and running the MLP (pose control) and ResNet50 (activity recognition) architectures.
+  * [Ultralytics YOLO](https://docs.ultralytics.com/): Employed for rapid, state-of-the-art bounding-box inference for faces and complex hand gestures.
+* **Computer Vision**:
+  * [MediaPipe](https://developers.google.com/mediapipe): Powerful internal tools employed for highly accurate, sub-millisecond mapping of 33-point geometric human posture skeletal landmarks.
+  * [OpenCV (`opencv-python`)](https://opencv.org/): Manages core video/image pre-processing, rendering bounding boxes, and hardware webcam I/O.
+* **Automation & Control**: 
+  * [PyAutoGUI](https://pyautogui.readthedocs.io/): Acts as the bridge connecting AI inference predictions to the OS, triggering autonomous simulated keyboard events.
+* **Data Processing & Utilities**: 
+  * [Pandas](https://pandas.pydata.org/) & [NumPy](https://numpy.org/): Core utilities for dataset manipulation and matrix evaluation.
+  * [SciPy](https://scipy.org/): Decodes nested MATLAB (`.mat`) annotation structures from the MPII datasets.
+  * [Pillow (PIL)](https://python-pillow.org/): Applied for high-level image augmentations and precision tensor conversions.
+  * [PyYAML (`yaml`)](https://pyyaml.org/) & [tqdm](https://tqdm.github.io/): Managing model configuration files and training progress bars.
 
-## 📂 Project Structure
+## 📁 Datasets Utilized
 
-```text
-FaceDetection_System/
-├── archive/                   # Raw WIDER FACE dataset (Extracted)
-│   ├── WIDER_train/
-│   ├── WIDER_val/
-│   └── wider_face_annotations/
-├── runs/                      # Training logs, graphs, and weights generated by YOLO
-├── test.py                    # MAIN SCRIPT: Handles data conversion and model training
-├── running.py                 # CAMERA SCRIPT: Runs the live detection system (Face + Gestures)
-├── examples/                  # Example images for README
-├── rebuild_labels.py          # UTILITY: Fixes label generation if 'Instances: 0' error occurs
-├── final_face_model.pt        # The final trained model file (Output)
-├── wider_face_config.yaml     # Dataset configuration file (Auto-generated)
-└── README.md                  # Project documentation
+1. **WIDER FACE**: Used for face detection labels and images.
+2. **HaGRID Hand Gesture Dataset**: Used for training gesture classes (`call`, `dislike`, `fist`, `palm`, `peace`, etc.).
+3. **MPII Human Pose Dataset**: Used for activity classification metadata (`train_activity.py`) and pose landmark extraction (`extract_pose_features.py`).
+
+## 🧠 Trained Model Artifacts
+
+* `final_face_model.pt`: YOLO Face detector.
+* `final_face_gesture_model.pt`: Combined YOLO Face and Hand-gesture detector.
+* `subway_pose_model.pth`: PyTorch MLP mapping standard human poses (Jump/Down/Left/Right/Idle).
+* `activity_model.pth` / `best_activity_model.pth`: PyTorch ResNet50 checkpoints for MPII activity.
+* `yolo11n.pt` / `yolov8n.pt`: Original YOLO base weights used for fine-tuning.
+* `activity_map.pkl` & `pose_label_map.pkl`: Serialized Python dictionaries linking class IDs to readable strings.
+
+## ⚙️ Setup & Installation
+
+**1. Virtual Environment:**
+```bash
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
-⚙️ Prerequisites & Installation
-1. System Requirements
-OS: Windows 10/11
+**2. Dependencies:**
+```bash
+python -m pip install --upgrade pip
+pip install ultralytics opencv-python mediapipe scipy pandas pillow pyyaml tqdm pyautogui
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+```
+*(If you do not have a CUDA-capable GPU, install the CPU-compatible version of PyTorch).*
 
-Python: Version 3.10 or 3.11 (Required for PyTorch stability)
+## 🎮 How to Run
 
-GPU: NVIDIA RTX/GTX Series (Highly Recommended for training)
-
-2. Environment Setup (Conda)
-It is recommended to use Anaconda to manage the Python environment.
-
-Bash
-
-# 1. Open Anaconda Prompt
-# 2. Create a clean environment
-conda create -n face_system python=3.11 -y
-
-# 3. Activate the environment
-conda activate face_system
-3. Install Dependencies
-Install the required libraries. Note the specific command for GPU support.
-
-Bash
-
-# 1. Install PyTorch with CUDA 12.1 support (For NVIDIA GPUs)
-pip install torch torchvision torchaudio --index-url [https://download.pytorch.org/whl/cu121](https://download.pytorch.org/whl/cu121)
-
-# 2. Install general dependencies
-pip install opencv-python ultralytics pyyaml
-🚀 Phase 1: Training the Model
-The test.py script handles the entire training pipeline.
-
-Steps:
-
-Download the WIDER FACE dataset and extract it into the archive folder.
-
-Run the training script:
-
-Bash
-
-python test.py
-What this script does:
-
-System Check: Verifies if the GPU (RTX 4060) is available.
-
-Data Conversion: Reads WIDER FACE annotations and converts them to .txt files in YOLO format.
-
-Configuration: Auto-generates wider_face_config.yaml.
-
-Training: Fine-tunes the yolov8n.pt base model for 10 epochs (default).
-
-Saving: Automatically saves the best performing model as final_face_model.pt in the project root.
-
-📷 Phase 2: Running the Camera System
-Once training is complete and final_face_model.pt is generated, you can start the live detection.
-
-Command:
-
-Bash
-
-python running.py
-Usage:
-
-A window titled "Outstanding Koders - Face Detection" will open.
-
-The system will draw green bounding boxes around detected faces with confidence scores.
-
-To Quit: Press Q on your keyboard.
-
-🛠️ Troubleshooting Guide
-1. Error: "WinError 1114" or DLL Load Failed
-Cause: Missing system libraries or Intel OpenMP conflict.
-
-Fix: The code includes os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE". If this persists, reinstall the Microsoft Visual C++ Redistributable.
-
-2. Training shows "Instances: 0"
-Cause: The model cannot find the label files (.txt) corresponding to the images.
-
-Fix: Run the rebuild utility to force-generate labels:
-
-Bash
-
-python rebuild_labels.py
-3. "CUDA not available" / Training is slow
-Cause: PyTorch is using the CPU instead of the GPU.
-
-Fix: Verify installation by running:
-
-Python
-
-import torch
-print(torch.cuda.is_available())
-If False, reinstall PyTorch using the --index-url command listed in the Installation section.
-
-📝 Credits
-Project By: Outstanding Koders
-
-Base Model: Ultralytics YOLOv8
-
-Dataset: WIDER FACE (Yang et al.)
-
-Model file name : final_face_model.pt
+* **A. Run Live Face & Gesture Detection:**  
+  `python running.py`
+* **B. Play Racing Games via Hand Gestures:**  
+  `python game_control.py`  
+  *(Fist = Gas, Palm/Stop = Brake)*
+* **C. Play Subway Surfers via Body Pose:**  
+  `python subway_control.py --model subway_pose_model.pth`
+* **D. Run Live Webcam Activity Recognition:**  
+  `python webcam_activity.py --model best_activity_model.pth --map activity_map.pkl`
